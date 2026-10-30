@@ -37,15 +37,13 @@
 
   <main id="game" class="game hidden">
     <section class="stage">
-      <div class="bar" id="plTop"><b id="nameTop"></b><span id="clockTop" class="clock">10:00</span></div>
+     <div class="bar" id="plTop"><div class="who"><b id="nameTop"></b><div id="capTop" class="cap"></div></div><span id="clockTop" class="clock">10:00</span></div>
       <div class="wrap"><div id="board" class="board" aria-label="Tabuleiro de xadrez"></div><div id="banner" class="banner" role="status"></div></div>
-      <div class="bar" id="plBot"><b id="nameBot"></b><span id="clockBot" class="clock">10:00</span></div>
+      <div class="bar" id="plBot"><div class="who"><b id="nameBot"></b><div id="capBot" class="cap"></div></div><span id="clockBot" class="clock">10:00</span></div>
       <div id="gameStatus" class="status"></div>
     </section>
     <aside>
       <div class="info">Sala <strong id="roomLabel">------</strong> · <span id="orientation"></span></div>
-      <div class="cap" id="capW"></div>
-      <div class="cap" id="capB"></div>
       <div id="moveList" class="log"></div>
       <div class="btns">
         <button id="copyCode">Copiar convite</button>

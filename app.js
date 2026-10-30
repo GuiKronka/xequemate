@@ -138,9 +138,8 @@ function render() {
     (chess.turn() === myColor ? "Sua vez" : "Vez do adversário") + (chess.in_check() ? " – xeque!" : "");
   $("gameStatus").textContent = t;
   $("banner").textContent = over ? t : ""; $("banner").classList.toggle("show", over && !!room.black_id);
-  const cp = captured();
-  $("capW").innerHTML = "<small>Capturadas pelas brancas</small>" + cp.w;
-  $("capB").innerHTML = "<small>Capturadas pelas pretas</small>" + cp.b;
+    const cp = captured(), topC = flipped ? "w" : "b", botC = flipped ? "b" : "w";
+  $("capTop").innerHTML = cp[topC]; $("capBot").innerHTML = cp[botC];
   const hist = chess.history(); let l = "";
   for (let i = 0; i < hist.length; i += 2) l += `<span class="n">${i / 2 + 1}.</span><span>${pt(hist[i])}</span><span>${hist[i + 1] ? pt(hist[i + 1]) : ""}</span>`;
   $("moveList").innerHTML = l || '<span class="msg">Nenhum lance ainda.</span>'; $("moveList").scrollTop = 1e6;
