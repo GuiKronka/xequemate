@@ -82,12 +82,12 @@ function boardSquares(){
 }
 function render(){
   const board=$("board"); board.innerHTML="";
-  const glyph={"wk":"♔","wq":"♕","wr":"♖","wb":"♗","wn":"♘","wp":"♙","bk":"♚","bq":"♛","br":"♜","bb":"♝","bn":"♞","bp":"♟"};
+  const glyph={k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟\uFE0E"};
   for(const sq of boardSquares()){
     const [file,rank]=[sq[0],Number(sq[1])], light=(file.charCodeAt(0)-97+rank)%2===1;
     const piece=chess.get(sq), b=document.createElement("button");
     b.className="square "+(light?"light":"dark")+(selected===sq?" selected":"")+(legalTargets.includes(sq)?" "+(piece?"capture":"target"):"");
-    b.setAttribute("aria-label",sq+(piece?", "+piece.color+piece.type:"")); b.textContent=piece?glyph[piece.color+piece.type]:"";
+   b.setAttribute("aria-label",sq+(piece?", "+piece.color+piece.type:"")); b.textContent=piece?glyph[piece.type]:""; if(piece) b.classList.add(piece.color==="w"?"pw":"pb");
     b.onclick=()=>onSquare(sq); board.appendChild(b);
   }
   const hist=chess.history(); $("moveList").innerHTML="";
