@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>XequeMate — Xadrez entre amigos</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header><div class="brand"><span>♟</span> XequeMate</div><div id="connection" class="pill">Desconectado</div></header>
+    <section id="setup" class="panel setup">
+      <h1>Jogue com seu amigo</h1>
+      <p>Crie uma sala ou entre usando o código enviado pelo adversário.</p>
+      <label>Seu apelido<input id="nickname" maxlength="18" placeholder="Ex.: Kronka"></label>
+      <label>Tempo por jogador
+        <select id="timeControl">
+          <option value="300">5 minutos</option><option value="600" selected>10 minutos</option>
+          <option value="900">15 minutos</option><option value="1800">30 minutos</option>
+        </select>
+      </label>
+      <div class="actions"><button id="createBtn">Criar sala</button></div>
+      <div class="join"><input id="roomCode" maxlength="6" placeholder="Código da sala"><button id="joinBtn" class="secondary">Entrar</button></div>
+      <p id="setupMessage" class="message"></p>
+      <details><summary>Configuração inicial</summary><p>Abra <code>app.js</code> e preencha <code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code>. Depois execute o SQL de <code>sql/schema.sql</code> no SQL Editor do Supabase e habilite login anônimo.</p></details>
+    </section>
+
+    <section id="game" class="game hidden">
+      <div class="game-top"><div><span class="muted">Sala</span><strong id="roomLabel">------</strong><button id="copyCode" class="tiny">Copiar</button></div><div id="gameStatus" class="pill">Aguardando adversário</div></div>
+      <div class="layout">
+        <aside class="player-card"><div class="avatar">♚</div><div><strong id="blackName">Pretas</strong><small>PRETAS</small></div><div id="blackClock" class="clock">10:00</div></aside>
+        <div class="board-wrap"><div id="board" class="board" aria-label="Tabuleiro de xadrez"></div><div class="board-foot"><span id="orientation">Você joga de brancas</span><button id="flipBtn" class="tiny">Virar tabuleiro</button></div></div>
+        <aside class="player-card"><div class="avatar">♔</div><div><strong id="whiteName">Brancas</strong><small>BRANCAS</small></div><div id="whiteClock" class="clock">10:00</div></aside>
+      </div>
+      <div class="below">
+        <section class="panel moves"><h2>Histórico</h2><ol id="moveList"></ol></section>
+        <section class="panel controls"><h2>Partida</h2><button id="rematchBtn" class="secondary" disabled>Solicitar revanche</button><p id="rematchInfo" class="message">A revanche fica disponível quando a partida terminar.</p><button id="leaveBtn" class="danger">Sair da sala</button></section>
+      </div>
+      <p id="gameMessage" class="message"></p>
+    </section>
+    <footer>XequeMate · projeto experimental para jogar entre amigos</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
