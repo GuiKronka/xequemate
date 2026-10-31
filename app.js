@@ -10,6 +10,7 @@ const PT = { K: "R", Q: "D", R: "T", N: "C" }; // notação em português (só n
 let user = null, room = null, channel = null, myColor = "w", flipped = false;
 let sel = null, targets = [], pend = null, armed = 0, gameOver = false;
 let remaining = { w: 600, b: 600 }, lastTick = Date.now();
+let lastBeat = 0, oppOnline = false;
 
 const say = (id, m) => { $(id).textContent = m || ""; };
 const timeText = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
@@ -44,7 +45,8 @@ async function createRoom() {
   try {
     await ensureUser();
     const name = $("nickname").value.trim() || "Brancas"; store("xm-nick", name);
-    const { data, error } = await client.rpc("create_chess_room", { p_code: code(), p_name: name, p_seconds: Number($("timeControl").value) });
+        const [secs, inc] = $("timeControl").value.split("+").map(Number);
+    const { data, error } = await client.rpc("create_chess_room", { p_code: code(), p_name: name, p_seconds: secs, p_inc: inc || 0 });
     if (error) throw error;
     await enterRoom(data);
   } catch (e) { say("setupMessage", e.message); }
@@ -65,8 +67,8 @@ async function enterRoom(row) {
   sel = null; targets = []; pend = null; store("xm-room", row.code);
   $("setup").classList.add("hidden"); $("game").classList.remove("hidden");
   $("roomLabel").textContent = row.code; say("gameMessage", "");
-  $("orientation").textContent = myColor === "w" ? "você joga de brancas" : "você joga de pretas";
-  applyRow(row); subscribe();
+    $("orientation").textContent = (myColor === "w" ? "você joga de brancas" : "você joga de pretas") + " · ritmo " + row.initial_seconds / 60 + "+" + (row.increment_seconds || 0);
+  applyRow(row); subscribe(); beat();
 }
 function applyRow(row) {
   room = row;
@@ -88,6 +90,7 @@ function subscribe() {
         if (data) { await enterRoom(data); say("gameMessage", "Nova partida criada!"); }
         return;
       }
+            if (payload.new.updated_at === room.updated_at) return;
       if (payload.new.updated_by !== user.id) applyRow(payload.new); else render();
     })
     .subscribe(status => {
@@ -111,7 +114,7 @@ function paintPlayers() {
   const top = flipped ? "w" : "b", bot = flipped ? "b" : "w";
   const nm = c => c === "w" ? (room.white_name || "Brancas") : (room.black_name || "Aguardando…");
   [["Top", top], ["Bot", bot]].forEach(([k, c]) => {
-    $("name" + k).textContent = nm(c) + (c === myColor ? " (você)" : "");
+    $("name" + k).textContent = nm(c) + (c === myColor ? " (você)" : room.black_id ? (oppOnline ? " ● online" : " ○ offline") : "");
     $("clock" + k).textContent = timeText(remaining[c]);
     $("pl" + k).classList.toggle("turn", !isOver() && !!room.black_id && chess.turn() === c);
   });
@@ -144,6 +147,10 @@ function render() {
   for (let i = 0; i < hist.length; i += 2) l += `<span class="n">${i / 2 + 1}.</span><span>${pt(hist[i])}</span><span>${hist[i + 1] ? pt(hist[i + 1]) : ""}</span>`;
   $("moveList").innerHTML = l || '<span class="msg">Nenhum lance ainda.</span>'; $("moveList").scrollTop = 1e6;
   $("rematchBtn").disabled = !over; $("resignBtn").disabled = over || !room.black_id;
+    const offer = room.draw_offer_by, mine = offer === user.id, theirs = !!offer && !mine;
+  $("drawBtn").textContent = theirs ? "Aceitar empate" : mine ? "Empate oferecido…" : "Oferecer empate";
+  $("drawBtn").disabled = over || !room.black_id || mine;
+  $("declineBtn").classList.toggle("hidden", !theirs || over);
   paintPlayers();
 }
 
@@ -166,14 +173,11 @@ function showPromo() {
 }
 async function persistMove() {
   try {
-    const now = Date.now(), elapsed = now - lastTick; lastTick = now;
-    const mover = myColor; remaining[mover] = Math.max(0, remaining[mover] - elapsed);
-    const finished = chess.game_over() || remaining[mover] <= 0;
-    const result = chess.in_checkmate() ? (mover === "w" ? "Brancas venceram por xeque-mate" : "Pretas venceram por xeque-mate") :
-      remaining[mover] <= 0 ? (mover === "w" ? "Pretas venceram pelo tempo" : "Brancas venceram pelo tempo") : chess.in_draw() ? "Empate" : "";
-    const { data, error } = await client.rpc("play_chess_move", { p_room_id: room.id, p_fen: chess.fen(), p_pgn: chess.pgn(), p_white_ms: remaining.w, p_black_ms: remaining.b, p_finished: finished, p_result: result });
+    const finished = chess.game_over();
+    const result = chess.in_checkmate() ? (myColor === "w" ? "Brancas venceram por xeque-mate" : "Pretas venceram por xeque-mate") : chess.in_draw() ? "Empate" : "";
+    const { data, error } = await client.rpc("play_chess_move", { p_room_id: room.id, p_fen: chess.fen(), p_pgn: chess.pgn(), p_finished: finished, p_result: result });
     if (error) throw error;
-    if (finished) applyRow(data);
+    applyRow(data);
   } catch (e) { say("gameMessage", "Não consegui salvar a jogada: " + e.message + " — atualize a página para recuperar o estado do servidor."); }
 }
 
@@ -214,23 +218,36 @@ $("promo").addEventListener("click", e => {
   if (q && pend) { const m = { ...pend, promotion: q.dataset.q }; $("promo").hidden = true; pend = null; doMove(m); }
   else if (e.target === $("promo")) { $("promo").hidden = true; pend = null; }
 });
-
+async function beat() {
+  if (!room) return; lastBeat = Date.now();
+  const { data, error } = await client.rpc("chess_beat", { p_room_id: room.id });
+  if (error) { if (/não encontrada/i.test(error.message)) { await leaveRoom(); say("setupMessage", "Essa sala expirou por inatividade."); } return; }
+  remaining = { w: data.w, b: data.b }; lastTick = Date.now(); oppOnline = data.opp; paintPlayers();
+  if (data.ended) resync();
+}
 async function resync() {
   if (!room) return;
   const { data, error } = await client.from("chess_rooms").select("*").eq("id", room.id).single();
-  if (data) applyRow(data);
+  if (data) { applyRow(data); beat(); }
   else if (error && error.code === "PGRST116") { await leaveRoom(); say("setupMessage", "Essa sala expirou por inatividade."); }
 }
+async function draw(action) {
+  try { const { data, error } = await client.rpc("chess_draw", { p_room_id: room.id, p_action: action }); if (error) throw error; applyRow(data); }
+  catch (e) { say("gameMessage", e.message); }
+}
+$("drawBtn").onclick = () => draw(room.draw_offer_by && room.draw_offer_by !== user.id ? "accept" : "offer");
+$("declineBtn").onclick = () => draw("decline");
 document.addEventListener("visibilitychange", () => { if (!document.hidden) resync(); });
 
 setInterval(() => {
   if (!room || isOver() || !room.black_id) return;
   const now = Date.now(), elapsed = now - lastTick; lastTick = now;
-  if (elapsed > 120000) { resync(); return; } // aparelho dormiu: não cobra o tempo parado
+  if (elapsed > 120000) { resync(); return; }
   const turn = chess.turn(); remaining[turn] = Math.max(0, remaining[turn] - elapsed);
   paintPlayers();
-  if (remaining[turn] === 0) { gameOver = true; say("gameMessage", "O tempo acabou. Na próxima versão vamos registrar a vitória por tempo no servidor."); render(); }
+  if (remaining[turn] === 0 && now - lastBeat > 2000) beat();
 }, 250);
+setInterval(beat, 20000);
 
 // Ao abrir: apelido salvo, convite por link (?sala=CODIGO) e reentrada automática na última sala
 (async () => {
