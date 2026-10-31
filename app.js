@@ -19,7 +19,27 @@ const recall = k => { try { return localStorage.getItem(k); } catch (e) { return
 const isOver = () => gameOver || chess.game_over();
 const code = () => Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "X");
 const pt = s => s.replace(/^[KQRN]/, m => PT[m]).replace(/=([QRN])/, (x, m) => "=" + PT[m]);
-
+// ---- Sons (sintetizados no navegador, sem arquivos) ----
+let muted = recall("xm-mute") === "1", AC = null, seenPly = -1, wasOver = null;
+function audio() {
+  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === "suspended") AC.resume(); } catch (e) {}
+  return AC;
+}
+function tone(f, d, o = {}) {
+  const c = audio(); if (!c || muted) return;
+  const t = c.currentTime + (o.at || 0), g = c.createGain(), osc = c.createOscillator();
+  osc.type = o.type || "sine"; osc.frequency.setValueAtTime(f, t);
+  if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t + d);
+  g.gain.setValueAtTime(o.vol || 0.18, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  osc.connect(g); g.connect(c.destination); osc.start(t); osc.stop(t + d + 0.03);
+}
+const SND = {
+  move: () => tone(420, 0.07, { type: "triangle", to: 260 }),
+  capture: () => { tone(230, 0.13, { type: "square", to: 90, vol: 0.14 }); tone(540, 0.05, { type: "triangle", vol: 0.12 }); },
+  check: () => { tone(660, 0.09); tone(880, 0.16, { at: 0.09 }); },
+  end: () => { tone(523, 0.18); tone(392, 0.18, { at: 0.18 }); tone(262, 0.4, { at: 0.36 }); }
+};
+document.addEventListener("pointerdown", audio, { once: true });
 // Correção de alinhamento vertical dos glifos (mede a fonte no canvas)
 const DY = {};
 (function () { try {
@@ -64,7 +84,7 @@ async function joinRoom() {
 }
 async function enterRoom(row) {
   room = row; myColor = row.white_id === user.id ? "w" : "b"; flipped = myColor === "b";
-  sel = null; targets = []; pend = null; store("xm-room", row.code);
+    sel = null; targets = []; pend = null; seenPly = -1; wasOver = null; store("xm-room", row.code);
   $("setup").classList.add("hidden"); $("game").classList.remove("hidden");
   $("roomLabel").textContent = row.code; say("gameMessage", "");
     $("orientation").textContent = (myColor === "w" ? "você joga de brancas" : "você joga de pretas") + " · ritmo " + row.initial_seconds / 60 + "+" + (row.increment_seconds || 0);
@@ -122,6 +142,10 @@ function paintPlayers() {
 function render() {
   if (!room) return;
   const hv = chess.history({ verbose: true }), last = hv[hv.length - 1];
+    if (seenPly >= 0 && hv.length > seenPly && last) {
+    if (last.san.includes("+") || last.san.includes("#")) SND.check(); else if (last.captured) SND.capture(); else SND.move();
+  }
+  seenPly = hv.length;
   const kingSq = chess.in_check() ? findKing(chess.turn()) : null;
   const files = flipped ? "hgfedcba" : "abcdefgh", ranks = flipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
   let h = "";
@@ -137,6 +161,8 @@ function render() {
   }));
   $("board").innerHTML = h;
   const over = isOver();
+    if (wasOver === false && over) setTimeout(SND.end, 400);
+  wasOver = over;
   const t = !room.black_id ? "Aguardando adversário" : over ? (room.result || (chess.in_checkmate() ? "Xeque-mate!" : "Empate")) :
     (chess.turn() === myColor ? "Sua vez" : "Vez do adversário") + (chess.in_check() ? " – xeque!" : "");
   $("gameStatus").textContent = t;
@@ -209,6 +235,9 @@ async function copy(text, btn, ok) {
 $("createBtn").onclick = createRoom; $("joinBtn").onclick = joinRoom; $("leaveBtn").onclick = leaveRoom;
 $("rematchBtn").onclick = requestRematch; $("resignBtn").onclick = resign;
 $("flipBtn").onclick = () => { flipped = !flipped; render(); };
+const paintMute = () => { $("muteBtn").textContent = muted ? "🔇 Mudo" : "🔊 Som"; };
+$("muteBtn").onclick = () => { muted = !muted; store("xm-mute", muted ? "1" : null); paintMute(); if (!muted) SND.move(); };
+paintMute();
 $("copyCode").onclick = () => copy(location.origin + location.pathname + "?sala=" + room.code, $("copyCode"), "Copiado!");
 $("pgnBtn").onclick = () => copy(chess.pgn() || "(sem lances)", $("pgnBtn"), "Copiado!");
 $("banner").onclick = () => $("banner").classList.remove("show");
