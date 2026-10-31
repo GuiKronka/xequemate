@@ -21,6 +21,7 @@ const code = () => Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6
 const pt = s => s.replace(/^[KQRN]/, m => PT[m]).replace(/=([QRN])/, (x, m) => "=" + PT[m]);
 // ---- Sons (sintetizados no navegador, sem arquivos) ----
 let muted = recall("xm-mute") === "1", AC = null, seenPly = -1, wasOver = null;
+let pre = null, preOn = recall("xm-pre") !== "0";
 function audio() {
   try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === "suspended") AC.resume(); } catch (e) {}
   return AC;
@@ -84,7 +85,7 @@ async function joinRoom() {
 }
 async function enterRoom(row) {
   room = row; myColor = row.white_id === user.id ? "w" : "b"; flipped = myColor === "b";
-    sel = null; targets = []; pend = null; seenPly = -1; wasOver = null; store("xm-room", row.code);
+      sel = null; targets = []; pend = null; pre = null; seenPly = -1; wasOver = null; store("xm-room", row.code);
   $("setup").classList.add("hidden"); $("game").classList.remove("hidden");
   $("roomLabel").textContent = row.code; say("gameMessage", "");
     $("orientation").textContent = (myColor === "w" ? "você joga de brancas" : "você joga de pretas") + " · ritmo " + row.initial_seconds / 60 + "+" + (row.increment_seconds || 0);
@@ -98,7 +99,7 @@ function applyRow(row) {
   $("rematchBtn").disabled = !gameOver; $("resignBtn").disabled = gameOver || !row.black_id;
   if (row.rematch_white || row.rematch_black) say("rematchInfo", "Pedido de revanche: " + (row.rematch_white ? "brancas " : "") + (row.rematch_black ? "pretas" : ""));
   else say("rematchInfo", "");
-  render();
+    render(); setTimeout(tryPre, 60);
 }
 function subscribe() {
   if (channel) client.removeChannel(channel);
@@ -155,6 +156,7 @@ function render() {
     if (last && (sq === last.from || sq === last.to)) c += " last";
     if (sq === sel) c += " sel";
     if (sq === kingSq) c += " chk";
+        if (pre && (sq === pre.from || sq === pre.to)) c += " pre";
     if (targets.includes(sq)) c += p ? " cp" : " mv";
     h += `<button class="${c}" data-sq="${sq}" aria-label="${sq}${p ? ", " + p.type + " " + (p.color === "w" ? "branca" : "preta") : ""}">` +
       (fi === 0 ? `<i class="co rk">${r}</i>` : "") + (ri === 7 ? `<i class="co fl">${f}</i>` : "") + (p ? glyph(p.color, p.type) : "") + "</button>";
@@ -181,7 +183,8 @@ function render() {
 }
 
 function onSquare(sq) {
-  if (isOver() || !room?.black_id || chess.turn() !== myColor) return;
+    if (isOver() || !room?.black_id) return;
+  if (chess.turn() !== myColor) { if (preOn) onPre(sq); return; }
   const p = chess.get(sq);
   if (sel && targets.includes(sq)) {
     const mv = chess.moves({ square: sel, verbose: true }).find(m => m.to === sq);
@@ -193,6 +196,45 @@ function onSquare(sq) {
   render();
 }
 function doMove(m) { if (!chess.move(m)) return; sel = null; targets = []; render(); persistMove(); }
+
+// ---- Pré-lance: um lance agendado, jogado assim que for a sua vez ----
+function preTargets(from) {
+  const p = chess.get(from); if (!p) return [];
+  const fx = from.charCodeAt(0) - 97, fy = Number(from[1]) - 1, out = [];
+  for (let x = 0; x < 8; x++) for (let y = 0; y < 8; y++) {
+    const dx = x - fx, dy = y - fy, ax = Math.abs(dx), ay = Math.abs(dy); if (!dx && !dy) continue;
+    let ok = false;
+    if (p.type === "n") ok = ax * ay === 2;
+    else if (p.type === "b") ok = ax === ay;
+    else if (p.type === "r") ok = !ax || !ay;
+    else if (p.type === "q") ok = ax === ay || !ax || !ay;
+    else if (p.type === "k") ok = (ax <= 1 && ay <= 1) || (!ay && ax === 2 && fx === 4);
+    else { const dir = p.color === "w" ? 1 : -1, start = p.color === "w" ? 1 : 6;
+      ok = (!ax && dy === dir) || (!ax && dy === 2 * dir && fy === start) || (ax === 1 && dy === dir); }
+    if (ok) out.push("abcdefgh"[x] + (y + 1));
+  }
+  return out;
+}
+function onPre(sq) {
+  const p = chess.get(sq);
+  if (sel && targets.includes(sq)) { pre = { from: sel, to: sq }; sel = null; targets = []; }
+  else if (p && p.color === myColor && sq !== sel) { sel = sq; targets = preTargets(sq); }
+  else { sel = null; targets = []; pre = null; }
+  render();
+}
+function tryPre() {
+  if (!pre) return;
+  if (isOver() || !room?.black_id) { pre = null; render(); return; }
+  if (chess.turn() !== myColor) return;
+  const m = pre; pre = null;
+  const ok = chess.moves({ verbose: true }).find(x => x.from === m.from && x.to === m.to);
+  if (ok) doMove({ from: m.from, to: m.to, promotion: ok.promotion ? "q" : undefined }); else render();
+}
+$("board").addEventListener("contextmenu", e => { e.preventDefault(); pre = null; sel = null; targets = []; render(); });
+const paintPre = () => { $("preBtn").textContent = preOn ? "⚡ Pré-lance: ligado" : "⚡ Pré-lance: desligado"; };
+$("preBtn").onclick = () => { preOn = !preOn; store("xm-pre", preOn ? "1" : "0"); if (!preOn) { pre = null; sel = null; targets = []; render(); } paintPre(); };
+paintPre();
+
 function showPromo() {
   $("pbtns").innerHTML = ["q", "r", "b", "n"].map(q => `<button data-q="${q}" aria-label="${q}">${G[q]}\uFE0E</button>`).join("");
   $("promo").hidden = false;

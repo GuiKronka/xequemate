@@ -63,3 +63,4 @@ aside{flex:1 1 260px;max-width:340px;min-width:240px;background:var(--panel);bor
 .who{min-width:0}
 .bar .cap{font-size:1rem;min-height:1.4em;line-height:1.2}
 .cap .p.b{text-shadow:0 0 2px rgba(255,255,255,.55)}
+.sq.pre::before{background:rgba(80,140,230,.65)}
