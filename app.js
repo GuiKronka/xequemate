@@ -21,7 +21,7 @@ const code = () => Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6
 const pt = s => s.replace(/^[KQRN]/, m => PT[m]).replace(/=([QRN])/, (x, m) => "=" + PT[m]);
 // ---- Sons (sintetizados no navegador, sem arquivos) ----
 let muted = recall("xm-mute") === "1", AC = null, seenPly = -1, wasOver = null;
-let pre = null, preOn = recall("xm-pre") !== "0";
+let pres = [], preOn = recall("xm-pre") !== "0";
 function audio() {
   try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === "suspended") AC.resume(); } catch (e) {}
   return AC;
@@ -85,7 +85,7 @@ async function joinRoom() {
 }
 async function enterRoom(row) {
   room = row; myColor = row.white_id === user.id ? "w" : "b"; flipped = myColor === "b";
-      sel = null; targets = []; pend = null; pre = null; seenPly = -1; wasOver = null; store("xm-room", row.code);
+     sel = null; targets = []; pend = null; pres = []; seenPly = -1; wasOver = null; store("xm-room", row.code);
   $("setup").classList.add("hidden"); $("game").classList.remove("hidden");
   $("roomLabel").textContent = row.code; say("gameMessage", "");
     $("orientation").textContent = (myColor === "w" ? "você joga de brancas" : "você joga de pretas") + " · ritmo " + row.initial_seconds / 60 + "+" + (row.increment_seconds || 0);
@@ -151,12 +151,12 @@ function render() {
   const files = flipped ? "hgfedcba" : "abcdefgh", ranks = flipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
   let h = "";
   ranks.forEach((r, ri) => [...files].forEach((f, fi) => {
-    const sq = f + r, p = chess.get(sq);
+       const sq = f + r, p = vget(sq);
     let c = "sq" + (((f.charCodeAt(0) - 97) + r) % 2 === 0 ? " d" : "");
     if (last && (sq === last.from || sq === last.to)) c += " last";
     if (sq === sel) c += " sel";
     if (sq === kingSq) c += " chk";
-        if (pre && (sq === pre.from || sq === pre.to)) c += " pre";
+   if (pres.some(m => m.from === sq || m.to === sq)) c += " pre";
     if (targets.includes(sq)) c += p ? " cp" : " mv";
     h += `<button class="${c}" data-sq="${sq}" aria-label="${sq}${p ? ", " + p.type + " " + (p.color === "w" ? "branca" : "preta") : ""}">` +
       (fi === 0 ? `<i class="co rk">${r}</i>` : "") + (ri === 7 ? `<i class="co fl">${f}</i>` : "") + (p ? glyph(p.color, p.type) : "") + "</button>";
@@ -179,6 +179,7 @@ function render() {
   $("drawBtn").textContent = theirs ? "Aceitar empate" : mine ? "Empate oferecido…" : "Oferecer empate";
   $("drawBtn").disabled = over || !room.black_id || mine;
   $("declineBtn").classList.toggle("hidden", !theirs || over);
+    $("preClr").classList.toggle("hidden", !pres.length);
   paintPlayers();
 }
 
@@ -197,9 +198,23 @@ function onSquare(sq) {
 }
 function doMove(m) { if (!chess.move(m)) return; sel = null; targets = []; render(); persistMove(); }
 
-// ---- Pré-lance: um lance agendado, jogado assim que for a sua vez ----
+// ---- Pré-lances em fila (vários lances à frente) ----
+function vboard() {   // posição virtual: o tabuleiro real + os lances da fila
+  const v = {};
+  chess.board().forEach((row, i) => row.forEach((p, j) => { if (p) v["abcdefgh"[j] + (8 - i)] = { type: p.type, color: p.color }; }));
+  for (const m of pres) {
+    const p = v[m.from]; if (!p) continue;
+    const fx = m.from.charCodeAt(0) - 97, tx = m.to.charCodeAt(0) - 97;
+    if (p.type === "k" && Math.abs(tx - fx) === 2) { const r = m.from[1], rf = tx > fx ? "h" : "a", rt = tx > fx ? "f" : "d"; if (v[rf + r]) { v[rt + r] = v[rf + r]; delete v[rf + r]; } }
+    if (p.type === "p" && tx !== fx && !v[m.to]) delete v[m.to[0] + m.from[1]];
+    delete v[m.from];
+    v[m.to] = (p.type === "p" && (m.to[1] === "8" || m.to[1] === "1")) ? { type: "q", color: p.color } : p;
+  }
+  return v;
+}
+function vget(sq) { return pres.length ? vboard()[sq] : chess.get(sq); }
 function preTargets(from) {
-  const p = chess.get(from); if (!p) return [];
+  const p = vget(from); if (!p) return [];
   const fx = from.charCodeAt(0) - 97, fy = Number(from[1]) - 1, out = [];
   for (let x = 0; x < 8; x++) for (let y = 0; y < 8; y++) {
     const dx = x - fx, dy = y - fy, ax = Math.abs(dx), ay = Math.abs(dy); if (!dx && !dy) continue;
@@ -216,23 +231,27 @@ function preTargets(from) {
   return out;
 }
 function onPre(sq) {
-  const p = chess.get(sq);
-  if (sel && targets.includes(sq)) { pre = { from: sel, to: sq }; sel = null; targets = []; }
+  const p = vget(sq);
+  if (sel && targets.includes(sq)) { if (pres.length < 8) pres.push({ from: sel, to: sq }); sel = null; targets = []; }
   else if (p && p.color === myColor && sq !== sel) { sel = sq; targets = preTargets(sq); }
-  else { sel = null; targets = []; pre = null; }
+  else { sel = null; targets = []; }
   render();
 }
 function tryPre() {
-  if (!pre) return;
-  if (isOver() || !room?.black_id) { pre = null; render(); return; }
+  if (!pres.length) return;
+  if (isOver() || !room?.black_id) { pres = []; render(); return; }
   if (chess.turn() !== myColor) return;
-  const m = pre; pre = null;
+  const m = pres[0];
   const ok = chess.moves({ verbose: true }).find(x => x.from === m.from && x.to === m.to);
-  if (ok) doMove({ from: m.from, to: m.to, promotion: ok.promotion ? "q" : undefined }); else render();
+  if (!ok) { pres = []; render(); return; }   // lance ilegal: cancela a fila toda
+  pres.shift();
+  doMove({ from: m.from, to: m.to, promotion: ok.promotion ? "q" : undefined });
 }
-$("board").addEventListener("contextmenu", e => { e.preventDefault(); pre = null; sel = null; targets = []; render(); });
+const clearPre = () => { pres = []; sel = null; targets = []; render(); };
+$("board").addEventListener("contextmenu", e => { e.preventDefault(); clearPre(); });
+$("preClr").onclick = clearPre;
 const paintPre = () => { $("preBtn").textContent = preOn ? "⚡ Pré-lance: ligado" : "⚡ Pré-lance: desligado"; };
-$("preBtn").onclick = () => { preOn = !preOn; store("xm-pre", preOn ? "1" : "0"); if (!preOn) { pre = null; sel = null; targets = []; render(); } paintPre(); };
+$("preBtn").onclick = () => { preOn = !preOn; store("xm-pre", preOn ? "1" : "0"); if (!preOn) clearPre(); paintPre(); };
 paintPre();
 
 function showPromo() {
