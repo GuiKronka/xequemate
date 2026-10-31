@@ -215,9 +215,18 @@ $("promo").addEventListener("click", e => {
   else if (e.target === $("promo")) { $("promo").hidden = true; pend = null; }
 });
 
+async function resync() {
+  if (!room) return;
+  const { data, error } = await client.from("chess_rooms").select("*").eq("id", room.id).single();
+  if (data) applyRow(data);
+  else if (error && error.code === "PGRST116") { await leaveRoom(); say("setupMessage", "Essa sala expirou por inatividade."); }
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) resync(); });
+
 setInterval(() => {
   if (!room || isOver() || !room.black_id) return;
   const now = Date.now(), elapsed = now - lastTick; lastTick = now;
+  if (elapsed > 120000) { resync(); return; } // aparelho dormiu: não cobra o tempo parado
   const turn = chess.turn(); remaining[turn] = Math.max(0, remaining[turn] - elapsed);
   paintPlayers();
   if (remaining[turn] === 0) { gameOver = true; say("gameMessage", "O tempo acabou. Na próxima versão vamos registrar a vitória por tempo no servidor."); render(); }
@@ -233,6 +242,6 @@ setInterval(() => {
     await ensureUser();
     const { data, error } = await client.rpc("join_chess_room", { p_code: saved, p_name: $("nickname").value.trim() || "Pretas" });
     if (!error && data && !data.finished_at && (data.white_id === user.id || data.black_id === user.id)) await enterRoom(data);
-    else store("xm-room", null);
+        else { store("xm-room", null); if (error) say("setupMessage", "Sua última partida não está mais disponível (expirou ou foi encerrada)."); }
   } catch (e) { store("xm-room", null); }
 })();
