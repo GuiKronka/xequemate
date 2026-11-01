@@ -34,7 +34,8 @@
   };
   vget = function (sq) {
     if (view !== null) return vchess.get(sq);
-    return (typeof pres !== "undefined" && pres.length) ? vboard()[sq] : chess.get(sq);
+    // modo "vários": mostra as peças já nas casas de destino; modo "único": mostra o tabuleiro real
+    return (preMode === "many" && typeof pres !== "undefined" && pres.length) ? vboard()[sq] : chess.get(sq);
   };
   showPromo = function () {
     $("pbtns").innerHTML = ["q", "r", "b", "n"].map(q => `<button data-q="${q}" aria-label="${q}">${pc(myColor, q)}</button>`).join("");
@@ -117,5 +118,24 @@
     const k = { ArrowLeft: () => stepTo(curPly() - 1), ArrowRight: () => stepTo(curPly() + 1), Home: () => stepTo(0), End: () => stepTo(1e9) }[e.key];
     if (k) { e.preventDefault(); k(); }
   });
+  // ---- Modo do pré-lance: desligado / único / vários ----
+  let preMode = recall("xm-premode") || (recall("xm-pre") === "0" ? "off" : "many");
+  const paintPre2 = () => { $("preBtn").textContent = "⚡ Pré-lance: " + { off: "desligado", one: "único", many: "vários" }[preMode]; };
+  const setPre = m => {
+    preMode = m; preOn = m !== "off"; store("xm-premode", m);
+    if (m === "off") pres = []; else if (m === "one") pres = pres.slice(0, 1);
+    sel = null; targets = []; paintPre2(); render();
+  };
+  onPre = function (sq) {
+    const one = preMode === "one", p = vget(sq);
+    if (sel && targets.includes(sq)) {
+      if (one) pres = [{ from: sel, to: sq }]; else if (pres.length < 8) pres.push({ from: sel, to: sq });
+      sel = null; targets = [];
+    } else if (p && p.color === myColor && sq !== sel) { sel = sq; targets = preTargets(sq); }
+    else { sel = null; targets = []; if (one) pres = []; }   // no modo único, clicar fora cancela
+    render();
+  };
+  $("preBtn").onclick = () => setPre(preMode === "one" ? "many" : preMode === "many" ? "off" : "one");
+  preOn = preMode !== "off"; paintPre2();
   if (room) render();
 })();
