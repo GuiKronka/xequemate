@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>XequeMate — Computador</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+</head>
+<body>
+  <header class="top"><h1>♟ XequeMate · Computador</h1><a class="pill" href="index.html" style="text-decoration:none">← Jogar online</a></header>
+  <main class="game">
+    <section class="stage">
+      <div class="bar"><b id="nTop">Computador</b><span id="sTop" class="msg"></span></div>
+      <div class="wrap"><div id="board" class="board" aria-label="Tabuleiro de xadrez"></div></div>
+      <div id="eb" class="eb hidden"><i></i><span></span></div>
+      <div class="bar"><b id="nBot">Você</b><span id="sBot" class="msg"></span></div>
+      <div id="status" class="status"></div>
+    </section>
+    <aside id="side">
+      <div class="tabs"><button id="tPlay" class="on">Jogar</button><button id="tAn">Analisar</button></div>
+
+      <div id="pPlay">
+        <label for="col">Você joga de</label>
+        <select id="col"><option value="w">Brancas</option><option value="b">Pretas</option><option value="r">Sorteio</option></select>
+        <label for="lv">Nível do computador</label>
+        <select id="lv"></select>
+        <div class="btns">
+          <button id="nw" class="primary">Nova partida</button>
+          <button id="un">Desfazer</button>
+          <button id="ht">Dica</button>
+          <button id="fl">Virar</button>
+          <button id="toAn">Analisar esta partida</button>
+        </div>
+        <div id="plog" class="log" style="margin-top:10px"></div>
+      </div>
+
+      <div id="pAn" class="hidden">
+        <textarea id="pgn" placeholder="Cole aqui o PGN da partida (use o botão 'Copiar PGN' do jogo online)…"></textarea>
+        <label for="depth">Profundidade da análise</label>
+        <select id="depth"><option value="10">Rápida (10)</option><option value="13" selected>Normal (13)</option><option value="16">Profunda (16)</option></select>
+        <div class="btns">
+          <button id="go" class="primary">Analisar</button>
+          <button id="stop" class="hidden">Parar</button>
+          <button id="useLast">Última partida online</button>
+        </div>
+        <div id="progW" class="prog hidden"><i id="prog"></i></div>
+        <div id="sum" class="sum"></div>
+        <svg id="graph" viewBox="0 0 300 80" class="hidden"></svg>
+        <div id="navA" class="nav hidden"><button id="aF">⏮</button><button id="aP">◀</button><button id="aN">▶</button><button id="aL">⏭</button></div>
+        <p id="info" class="msg"></p>
+        <div id="alog" class="log"></div>
+      </div>
+      <p id="msg" class="msg"></p>
+    </aside>
+  </main>
+  <script src="pecas.js"></script>
+  <script src="ia.js"></script>
+</body>
+</html>

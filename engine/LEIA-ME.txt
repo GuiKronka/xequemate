@@ -1,0 +1,5 @@
+Motor de xadrez Stockfish 19 (versão lite, single-thread) compilado para WebAssembly.
+- Stockfish: https://github.com/official-stockfish/Stockfish
+- Stockfish.js (build WASM), por Nathan Rugg: https://github.com/nmrugg/stockfish.js
+- Licença: GNU GPL v3 (texto completo em Copying.txt). O código-fonte está disponível nos endereços acima.
+Estes arquivos são usados pela página ia.html por meio de um Web Worker.

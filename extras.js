@@ -19,6 +19,12 @@
   document.head.appendChild(css);
   $("moveList").insertAdjacentHTML("beforebegin", '<div id="nav" class="nav hidden"><button id="nF" title="Início">⏮</button><button id="nP" title="Lance anterior">◀</button><button id="nN" title="Próximo lance">▶</button><button id="nL" title="Posição final">⏭</button></div>');
 
+  // Atalhos para o computador: analisar a partida (após o fim) e jogar contra o Stockfish
+  document.querySelector("#game .btns").insertAdjacentHTML("beforeend", '<button id="anBtn" class="hidden">🧠 Analisar partida</button>');
+  $("anBtn").onclick = () => { store("xm-lastpgn", chess.pgn()); window.open("ia.html?tab=analisar", "_blank"); };
+  $("setup").querySelector(".card").insertAdjacentHTML("beforeend", '<div class="row"><button id="aiBtn" style="flex:1">🤖 Jogar contra o computador</button></div>');
+  $("aiBtn").onclick = () => { location.href = "ia.html"; };
+
   const material = g => { const m = { w: 0, b: 0 }; g.board().flat().forEach(p => { if (p && p.type !== "k") m[p.color] += VAL[p.type]; }); return m; };
 
   captured = function (g = chess) {
@@ -94,6 +100,8 @@
     if (view === null) $("moveList").scrollTop = 1e6; else { const c = $("moveList").querySelector(".cur"); if (c) c.scrollIntoView({ block: "nearest" }); }
 
     $("nav").classList.toggle("hidden", !over);
+    if (over) store("xm-lastpgn", chess.pgn());
+    $("anBtn").classList.toggle("hidden", !over);
     $("nF").disabled = $("nP").disabled = cur === 0; $("nN").disabled = $("nL").disabled = cur >= total;
     $("rematchBtn").disabled = !over; $("resignBtn").disabled = over || !room.black_id;
     if ($("drawBtn")) {
