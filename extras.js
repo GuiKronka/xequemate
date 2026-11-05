@@ -48,6 +48,12 @@
     $("promo").hidden = false;
   };
 
+  // Explica o motivo do empate (antes aparecia só "Empate")
+  const drawReason = () => chess.in_stalemate() ? "Empate por afogamento"
+    : chess.insufficient_material() ? "Empate por material insuficiente"
+    : chess.in_threefold_repetition() ? "Empate por repetição de posição (3 vezes)"
+    : Number(chess.fen().split(" ")[4]) >= 100 ? "Empate pela regra dos 50 lances" : "Empate";
+
   render = function () {
     if (!room) return;
     const over = isOver();
@@ -82,7 +88,7 @@
     $("board").innerHTML = h;
 
     if (typeof wasOver !== "undefined") { if (wasOver === false && over && typeof SND !== "undefined") setTimeout(SND.end, 400); wasOver = over; }
-    const t = !room.black_id ? "Aguardando adversário" : over ? (room.result || (chess.in_checkmate() ? "Xeque-mate!" : "Empate")) :
+    const t = !room.black_id ? "Aguardando adversário" : over ? (room.result && room.result !== "Empate" ? room.result : (chess.in_checkmate() ? "Xeque-mate!" : drawReason())) :
       (chess.turn() === myColor ? "Sua vez" : "Vez do adversário") + (chess.in_check() ? " – xeque!" : "");
     $("gameStatus").textContent = view === null ? t : `Revendo: lance ${view} de ${total}`;
     $("banner").textContent = over ? t : "";
