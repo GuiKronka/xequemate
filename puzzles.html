@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1c2a31">
+  <title>XequeMate — Quebra-cabeças</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231c2a31'/%3E%3Ctext x='32' y='47' font-size='42' text-anchor='middle' fill='%23e6bf55'%3E%E2%99%9F%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+</head>
+<body>
+  <header class="top"><div class="topin">
+    <a class="brand" href="index.html"><span>♟</span> XequeMate</a>
+    <nav class="sitenav" aria-label="Principal">
+      <a href="index.html">Jogar</a>
+      <a href="index.html?torneio=1">Torneio</a>
+      <a href="ia.html">Computador</a>
+      <a href="puzzles.html" class="on">Quebra-cabeças</a>
+    </nav>
+  </div></header>
+
+  <main class="game">
+    <section class="stage">
+      <div class="bar"><b id="pzTitle">Quebra-cabeça</b><span id="pzTheme" class="msg"></span></div>
+      <div class="wrap"><div id="board" class="board" aria-label="Tabuleiro de xadrez"></div></div>
+      <div class="bar"><b id="pzTurn"></b><span id="pzDiff" class="msg"></span></div>
+      <div id="status" class="status"></div>
+    </section>
+    <aside id="side">
+      <div class="pzstats">
+        <div><span>Seu nível</span><b id="rating">1000</b><i id="delta"></i></div>
+        <div><span>Sequência</span><b id="streak">0</b></div>
+        <div><span>Resolvidos</span><b id="solvedN">0</b></div>
+      </div>
+      <label for="theme">Tipo de problema</label>
+      <select id="theme"></select>
+      <div class="btns">
+        <button id="hint">Dica</button>
+        <button id="sol">Ver solução</button>
+        <button id="next" class="primary">Próximo</button>
+      </div>
+      <p id="msg" class="msg"></p>
+      <p class="msg">Posições geradas por análise de partidas com o Stockfish. A dificuldade é uma estimativa e o seu nível sobe e desce conforme os acertos.</p>
+      <button id="reset" style="align-self:flex-start;font-size:.8rem;padding:.35em .7em">Zerar meu progresso</button>
+    </aside>
+  </main>
+  <script src="pecas.js"></script>
+  <script src="puzzles-data.js"></script>
+  <script src="puzzles.js"></script>
+</body>
+</html>

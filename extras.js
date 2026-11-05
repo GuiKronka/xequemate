@@ -68,7 +68,7 @@
     let h = "";
     ranks.forEach((r, ri) => [...files].forEach((f, fi) => {
       const sq = f + r, p = vget(sq);
-      let c = "sq" + (((f.charCodeAt(0) - 97) + r) % 2 === 0 ? " d" : "");
+      let c = "sq" + (((f.charCodeAt(0) - 97) + r) % 2 === 1 ? " d" : "");
       if (last && (sq === last.from || sq === last.to)) c += " last";
       if (view === null) {
         if (sq === sel) c += " sel";

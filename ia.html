@@ -3,12 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1c2a31">
   <title>XequeMate — Computador</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231c2a31'/%3E%3Ctext x='32' y='47' font-size='42' text-anchor='middle' fill='%23e6bf55'%3E%E2%99%9F%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 </head>
 <body>
-  <header class="top"><h1>♟ XequeMate · Computador</h1><a class="pill" href="index.html" style="text-decoration:none">← Jogar online</a></header>
+  <header class="top"><div class="topin">
+    <a class="brand" href="index.html"><span>♟</span> XequeMate</a>
+    <nav class="sitenav" aria-label="Principal">
+      <a href="index.html">Jogar</a>
+      <a href="index.html?torneio=1">Torneio</a>
+      <a href="ia.html" class="on">Computador</a>
+      <a href="puzzles.html">Quebra-cabeças</a>
+    </nav>
+  </div></header>
   <main class="game">
     <section class="stage">
       <div class="bar"><b id="nTop">Computador</b><span id="sTop" class="msg"></span></div>

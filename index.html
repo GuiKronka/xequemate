@@ -3,45 +3,85 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>XequeMate — Xadrez entre amigos</title>
+  <meta name="theme-color" content="#1c2a31">
+  <meta name="description" content="XequeMate: xadrez online entre amigos, torneios suíços, partidas contra o computador e quebra-cabeças. Sem cadastro.">
+  <title>XequeMate — Xadrez online entre amigos</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231c2a31'/%3E%3Ctext x='32' y='47' font-size='42' text-anchor='middle' fill='%23e6bf55'%3E%E2%99%9F%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 </head>
 <body>
-  <header class="top"><h1>♟ XequeMate</h1><div id="connection" class="pill">Desconectado</div></header>
+  <header class="top"><div class="topin">
+    <a class="brand" href="index.html"><span>♟</span> XequeMate</a>
+    <nav class="sitenav" aria-label="Principal">
+      <a href="index.html" class="on">Jogar</a>
+      <button id="navT" type="button">Torneio</button>
+      <a href="ia.html">Computador</a>
+      <a href="puzzles.html">Quebra-cabeças</a>
+    </nav>
+    <div id="connection" class="pill">Desconectado</div>
+  </div></header>
 
-  <section id="setup" class="setup">
-    <div class="card">
-      <h2>Jogue com seu amigo</h2>
-      <p class="msg">Crie uma sala ou entre com o código enviado pelo adversário.</p>
-      <label for="nickname">Seu apelido</label>
-      <input id="nickname" maxlength="18" placeholder="Ex.: Kronka">
-      <label for="timeControl">Tempo por jogador</label>
+  <section id="setup">
+    <div class="home">
+      <div class="hero">
+        <div>
+          <span class="eyebrow">Xadrez para a sala de aula</span>
+          <h2>Xadrez entre amigos, <em>sem cadastro.</em></h2>
+          <p class="lead">Crie uma sala, mande o código e jogue em qualquer navegador. Também tem torneio suíço para a turma, partidas contra o computador e quebra-cabeças.</p>
+          <div class="hero-card card">
+            <h3>Começar uma partida</h3>
+            <label for="nickname">Seu apelido</label>
+            <input id="nickname" maxlength="18" placeholder="Ex.: Kronka" autocomplete="off">
+            <label for="timeControl">Tempo por jogador</label>
             <select id="timeControl">
-        <option value="60+0">1 minuto</option>
-        <option value="180+0">3 minutos</option>
-        <option value="180+2">3 min + 2 s por lance</option>
-        <option value="300+0">5 minutos</option>
-        <option value="300+3">5 min + 3 s por lance</option>
-        <option value="600+0" selected>10 minutos</option>
-        <option value="600+5">10 min + 5 s por lance</option>
-        <option value="900+10">15 min + 10 s por lance</option>
-        <option value="1200+0">20 minutos</option>
-        <option value="1800+0">30 minutos</option>
-        <option value="2700+0">45 minutos</option>
-        <option value="3600+0">60 minutos</option>
-      </select>
-      <div class="row"><button id="createBtn" class="primary" style="flex:1">Criar sala</button></div>
-      <div class="row"><input id="roomCode" maxlength="6" placeholder="Código da sala"><button id="joinBtn">Entrar</button></div>
-      <p id="setupMessage" class="msg"></p>
-        <p class="msg">A partida fica salva por 1h40 sem atividade. Para voltar, abra o site e entre com o mesmo código e o mesmo apelido.</p>
+              <option value="60+0">1 minuto</option>
+              <option value="180+0">3 minutos</option>
+              <option value="180+2">3 min + 2 s por lance</option>
+              <option value="300+0">5 minutos</option>
+              <option value="300+3">5 min + 3 s por lance</option>
+              <option value="600+0" selected>10 minutos</option>
+              <option value="600+5">10 min + 5 s por lance</option>
+              <option value="900+10">15 min + 10 s por lance</option>
+              <option value="1200+0">20 minutos</option>
+              <option value="1800+0">30 minutos</option>
+              <option value="2700+0">45 minutos</option>
+              <option value="3600+0">60 minutos</option>
+            </select>
+            <div class="row"><button id="createBtn" class="primary" style="flex:1">Criar sala</button></div>
+            <div class="or">ou entre com um código</div>
+            <div class="row"><input id="roomCode" maxlength="6" placeholder="Código da sala" autocomplete="off"><button id="joinBtn">Entrar</button></div>
+            <p id="setupMessage" class="msg"></p>
+            <p class="msg">A partida fica salva por 1h40 sem atividade. Para voltar, entre com o mesmo código e o mesmo apelido.</p>
+          </div>
+        </div>
+        <div class="hbwrap">
+          <div id="hboard" class="hboard" aria-hidden="true"></div>
+          <p class="hcap">A Partida da Ópera — Morphy × Duque de Brunswick, 1858</p>
+        </div>
+      </div>
+
+      <div class="features">
+        <button type="button" class="fcard" id="fcOnline"><span class="ic" data-pc="wP"></span><b>Jogar online</b><span class="d">Sala privada por código ou link, relógio no servidor e chat entre os dois jogadores.</span><span class="go">Criar sala →</span></button>
+        <button type="button" class="fcard" id="fcTorneio"><span class="ic" data-pc="wR"></span><b>Torneio suíço</b><span class="d">Ideal para a turma: rodadas automáticas, classificação ao vivo e resultados sozinhos.</span><span class="go">Abrir torneio →</span></button>
+        <a class="fcard" href="ia.html"><span class="ic" data-pc="wN"></span><b>Contra o computador</b><span class="d">Oito níveis com o Stockfish e análise da partida, com precisão e erros apontados.</span><span class="go">Jogar agora →</span></a>
+        <a class="fcard" href="puzzles.html"><span class="ic" data-pc="wQ"></span><b>Quebra-cabeças</b><span class="d">Ache o melhor lance em posições reais, com nível que acompanha o seu progresso.</span><span class="go">Resolver →</span></a>
+      </div>
+
+      <h3 class="sect">Como funciona</h3>
+      <div class="steps">
+        <div class="step"><b>1. Crie a sala</b><span>Escolha o tempo e clique em “Criar sala”. Não precisa de conta.</span></div>
+        <div class="step"><b>2. Envie o convite</b><span>Mande o código de 6 letras ou o link para o seu adversário.</span></div>
+        <div class="step"><b>3. Jogue</b><span>Se alguém fechar o navegador, a partida continua salva e dá para retomar.</span></div>
+      </div>
+      <div class="foot">XequeMate · projeto educacional · regras por chess.js · motor Stockfish · peças cburnett · dados por Supabase</div>
     </div>
   </section>
 
   <main id="game" class="game hidden">
     <section class="stage">
-     <div class="bar" id="plTop"><div class="who"><b id="nameTop"></b><div id="capTop" class="cap"></div></div><span id="clockTop" class="clock">10:00</span></div>
+      <div class="bar" id="plTop"><div class="who"><b id="nameTop"></b><div id="capTop" class="cap"></div></div><span id="clockTop" class="clock">10:00</span></div>
       <div class="wrap"><div id="board" class="board" aria-label="Tabuleiro de xadrez"></div><div id="banner" class="banner" role="status"></div></div>
       <div class="bar" id="plBot"><div class="who"><b id="nameBot"></b><div id="capBot" class="cap"></div></div><span id="clockBot" class="clock">10:00</span></div>
       <div id="gameStatus" class="status"></div>
@@ -50,17 +90,17 @@
       <div class="info">Sala <strong id="roomLabel">------</strong> · <span id="orientation"></span></div>
       <div id="moveList" class="log"></div>
       <div class="btns">
-                <button id="preBtn">⚡ Pré-lance</button>
-                <button id="preClr" class="hidden">Limpar pré-lances</button>
         <button id="copyCode">Copiar convite</button>
         <button id="pgnBtn">Copiar PGN</button>
         <button id="flipBtn">Girar tabuleiro</button>
+        <button id="muteBtn">🔊 Som</button>
+        <button id="preBtn">⚡ Pré-lance</button>
+        <button id="preClr" class="hidden">Limpar pré-lances</button>
         <button id="drawBtn">Oferecer empate</button>
         <button id="declineBtn" class="hidden">Recusar empate</button>
         <button id="resignBtn">Desistir</button>
         <button id="rematchBtn" disabled>Revanche</button>
         <button id="leaveBtn">Sair da sala</button>
-                <button id="muteBtn">🔊 Som</button>
       </div>
       <p id="rematchInfo" class="msg"></p>
       <p id="gameMessage" class="msg"></p>
@@ -68,9 +108,11 @@
   </main>
 
   <div id="promo" class="ov" hidden><div class="card"><b>Promover peão para:</b><div id="pbtns" class="btns"></div></div></div>
+  <script src="pecas.js"></script>
   <script src="app.js"></script>
   <script src="torneio.js"></script>
   <script src="extras.js"></script>
   <script src="chat.js"></script>
+  <script src="home.js"></script>
 </body>
 </html>

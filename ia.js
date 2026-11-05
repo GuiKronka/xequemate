@@ -71,7 +71,7 @@
     const files = flipped ? "hgfedcba" : "abcdefgh", ranks = flipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
     const kingSq = pos.in_check() ? kingOf(pos, pos.turn()) : null; let h = "";
     ranks.forEach((r, ri) => [...files].forEach((f, fi) => {
-      const sq = f + r, p = pos.get(sq); let c = "sq" + (((f.charCodeAt(0) - 97) + r) % 2 === 0 ? " d" : "");
+      const sq = f + r, p = pos.get(sq); let c = "sq" + (((f.charCodeAt(0) - 97) + r) % 2 === 1 ? " d" : "");
       if (o.last && (sq === o.last.from || sq === o.last.to)) c += " last";
       if (o.best && (sq === o.best.from || sq === o.best.to)) c += " best";
       if (sq === o.sel) c += " sel";

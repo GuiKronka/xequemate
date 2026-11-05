@@ -1,33 +1,91 @@
-:root{--bg:#1c2a31;--panel:#263c47;--ink:#e9eff0;--mut:#9db0b6;--lt:#cdd8cf;--dk:#5a8179;--acc:#e6bf55;--wp:#fbfbf5;--bp:#111c24;--bad:#d9534f;color-scheme:dark}
+/* ==========================================================
+   XequeMate — style.css
+   ========================================================== */
+:root{--bg:#1c2a31;--panel:#263c47;--panel2:#2c4552;--ink:#e9eff0;--mut:#9db0b6;--lt:#cdd8cf;--dk:#5a8179;--acc:#e6bf55;--wp:#fbfbf5;--bp:#111c24;--bad:#d9534f;--line:rgba(255,255,255,.09);color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,"Segoe UI",sans-serif;padding-bottom:env(safe-area-inset-bottom,0)}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font:16px/1.5 system-ui,"Segoe UI",Roboto,sans-serif;padding-bottom:env(safe-area-inset-bottom,0);min-height:100vh;
+  background:radial-gradient(900px 520px at 85% -8%,rgba(90,129,121,.38),transparent 62%),radial-gradient(760px 460px at -8% 18%,rgba(230,191,85,.07),transparent 58%),var(--bg);background-attachment:fixed}
 .hidden{display:none!important}
 h1{font:600 1.6rem/1.1 "Iowan Old Style",Georgia,serif;margin:0}
 h2{font:600 1.4rem/1.2 "Iowan Old Style",Georgia,serif;margin:0 0 6px}
-.top{display:flex;align-items:center;justify-content:space-between;max-width:960px;margin:0 auto;padding:14px 12px 0}
-.pill{background:var(--panel);color:var(--mut);border-radius:99px;padding:6px 12px;font-size:.8rem;font-weight:600}
-.card{background:var(--panel);border-radius:10px;padding:18px}
-.setup{max-width:420px;margin:6vh auto;padding:0 12px}
+
+/* ---------- Barra de navegação ---------- */
+.top{position:sticky;top:0;z-index:30;background:rgba(28,42,49,.84);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topin{max-width:1120px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:8px;font:700 1.35rem/1 Georgia,"Iowan Old Style",serif;color:var(--ink);text-decoration:none;letter-spacing:.2px}
+.brand span{color:var(--acc);font-size:1.75rem;line-height:1}
+.sitenav{display:flex;gap:2px;flex:1;margin-left:8px}
+.sitenav a,.sitenav button{white-space:nowrap;background:none;border:0;color:var(--mut);padding:8px 12px;border-radius:8px;font:inherit;font-weight:600;font-size:.93rem;text-decoration:none;cursor:pointer}
+.sitenav a:hover,.sitenav button:hover,.sitenav .on{color:var(--ink);background:rgba(255,255,255,.07)}
+.pill{background:var(--panel);color:var(--mut);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:.8rem;font-weight:600;white-space:nowrap}
+@media(max-width:720px){.topin{flex-wrap:wrap;gap:8px}.sitenav{order:3;flex-basis:100%;margin:0;overflow-x:auto}.pill{margin-left:auto}}
+
+/* ---------- Componentes ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
 label{display:block;font-weight:600;font-size:.85rem;color:var(--mut);margin:14px 0 6px}
-input,select{width:100%;padding:11px;border-radius:6px;border:1px solid rgba(127,127,127,.4);background:var(--bg);color:var(--ink);font:inherit}
-button{font:inherit;font-weight:600;padding:.55em .9em;border-radius:6px;border:1px solid rgba(127,127,127,.4);background:transparent;color:var(--ink);cursor:pointer}
+input,select{width:100%;padding:11px 12px;border-radius:8px;border:1px solid rgba(127,127,127,.4);background:var(--bg);color:var(--ink);font:inherit;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(230,191,85,.2)}
+button{font:inherit;font-weight:600;padding:.6em 1em;border-radius:8px;border:1px solid rgba(127,127,127,.4);background:transparent;color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s,transform .1s,filter .15s}
 button:hover{border-color:var(--acc)}
-button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-button:disabled{opacity:.4;cursor:default}
+button:active{transform:translateY(1px)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button:disabled{opacity:.4;cursor:default;transform:none}
 .primary{background:var(--acc);border-color:var(--acc);color:#1c2a31}
+.primary:hover{filter:brightness(1.08)}
 .row{display:flex;gap:8px;margin-top:10px}
 .row input{text-transform:uppercase}
 .msg{color:var(--mut);font-size:.9rem;min-height:1.3em;margin:6px 0 0}
 
-.game{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;align-items:flex-start;padding:14px 12px 28px}
+/* ---------- Página inicial ---------- */
+.home{max-width:1120px;margin:0 auto;padding:0 16px 40px}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:52px 0 34px}
+.eyebrow{display:inline-block;color:var(--acc);font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
+.hero h2{font:700 clamp(2.2rem,5vw,3.4rem)/1.05 "Iowan Old Style",Georgia,serif;margin:0 0 16px;letter-spacing:-.5px}
+.hero h2 em{font-style:normal;color:var(--acc)}
+.lead{color:var(--mut);font-size:1.08rem;max-width:34em;margin:0 0 26px}
+.hero-card{background:linear-gradient(180deg,var(--panel),#223540);border:1px solid var(--line);border-radius:16px;padding:20px;max-width:440px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.hero-card h3{margin:0 0 2px;font-size:1.1rem}
+.hero-card .or{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:.8rem;margin:14px 0 2px}
+.hero-card .or::before,.hero-card .or::after{content:"";flex:1;height:1px;background:var(--line)}
+.hero-card .row:has(#tBtn),.hero-card .row:has(#aiBtn){display:none}
+#tBtn,#aiBtn{display:none}
+.hbwrap{justify-self:center;width:min(470px,100%)}
+.hboard{display:grid;grid-template:repeat(8,1fr)/repeat(8,1fr);aspect-ratio:1;border-radius:10px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 0 8px rgba(255,255,255,.04);transform:rotate(1.2deg)}
+.hs{display:flex;align-items:center;justify-content:center;background:var(--lt)}
+.hs.d{background:var(--dk)}
+.hs.l{background:#d6c36a}.hs.d.l{background:#a9a64a}
+.hs img{width:90%;height:90%;user-select:none}
+.hcap{margin:16px 4px 0;color:var(--mut);font-size:.82rem;text-align:center}
+.features{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:30px 0 14px}
+.fcard{display:flex;flex-direction:column;gap:8px;text-align:left;padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:14px;color:var(--ink);text-decoration:none;font-weight:400;transition:transform .15s,border-color .15s,box-shadow .15s;cursor:pointer}
+.fcard:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 14px 30px rgba(0,0,0,.3)}
+.fcard .ic{width:50px;height:50px;border-radius:12px;background:var(--lt);display:grid;place-items:center;margin-bottom:4px}
+.fcard .ic img{width:72%;height:72%}
+.fcard b{font-size:1.05rem}
+.fcard .d{color:var(--mut);font-size:.92rem;line-height:1.45}
+.fcard .go{margin-top:auto;padding-top:6px;color:var(--acc);font-weight:700;font-size:.9rem}
+.sect{margin:34px 0 14px;font:700 1.35rem/1.2 "Iowan Old Style",Georgia,serif}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.step{padding:16px 18px;border-left:3px solid var(--acc);background:rgba(255,255,255,.035);border-radius:0 12px 12px 0}
+.step b{display:block;margin-bottom:4px}
+.step span{color:var(--mut);font-size:.93rem}
+.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem;text-align:center}
+@media(max-width:900px){.hero{grid-template-columns:1fr;gap:30px;padding-top:26px}.hbwrap{width:min(380px,100%)}.features{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:1fr}}
+@media(max-width:480px){.features{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.fcard,button{transition:none}}
+
+/* ---------- Partida ---------- */
+.game{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;align-items:flex-start;padding:18px 12px 28px}
 .stage{--bw:min(520px,calc(100vw - 24px));width:var(--bw)}
-.bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin:8px 0;background:var(--panel);border-radius:8px;border:2px solid transparent}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin:8px 0;background:var(--panel);border:2px solid transparent;border-radius:10px}
 .bar.turn{border-color:var(--acc)}
 .clock{background:var(--bg);padding:4px 10px;border-radius:6px;font-weight:700;font-variant-numeric:tabular-nums}
 .status{font-weight:600;min-height:2em}
 .wrap{position:relative;width:var(--bw);height:var(--bw)}
-.board{display:grid;grid-template:repeat(8,1fr)/repeat(8,1fr);width:100%;height:100%;border-radius:6px;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,.35)}
+.board{display:grid;grid-template:repeat(8,1fr)/repeat(8,1fr);width:100%;height:100%;border-radius:8px;overflow:hidden;box-shadow:0 10px 32px rgba(0,0,0,.4),0 0 0 6px rgba(255,255,255,.04)}
 .sq{position:relative;display:flex;align-items:center;justify-content:center;border:0;border-radius:0;margin:0;padding:0;background:var(--lt);font-size:calc(var(--bw)/8*.78);line-height:1;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans","Apple Symbols",sans-serif;color:inherit}
+.sq:hover{border-color:transparent}
 .sq.d{background:var(--dk)}
 .sq::before{content:"";position:absolute;inset:0}
 .sq.last::before{background:rgba(230,191,85,.42)}
@@ -45,10 +103,11 @@ button:disabled{opacity:.4;cursor:default}
 .fl{bottom:4%;right:6%}
 .banner{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;padding:.5em;font:700 1.8rem/1.1 "Iowan Old Style",Georgia,serif;color:#fff;background:rgba(17,28,36,.94);border-block:3px solid var(--acc);z-index:5;display:none;cursor:pointer}
 .banner.show{display:block}
+.sq.pre::before{background:rgba(80,140,230,.65)}
 @keyframes pulse{50%{box-shadow:inset 0 0 0 4px var(--bad),inset 0 0 28px 10px rgba(217,83,79,.8)}}
 @media(prefers-reduced-motion:reduce){.sq{animation:none!important}}
 
-aside{flex:1 1 260px;max-width:340px;min-width:240px;background:var(--panel);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px}
+aside{flex:1 1 260px;max-width:340px;min-width:240px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .info{color:var(--mut)}
 .info strong{color:var(--ink);letter-spacing:2px}
 .cap{min-height:1.6em;font-size:1.2rem;line-height:1.3;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",sans-serif}
@@ -57,10 +116,8 @@ aside{flex:1 1 260px;max-width:340px;min-width:240px;background:var(--panel);bor
 .log{display:grid;grid-template-columns:2.2em 1fr 1fr;gap:2px 6px;max-height:210px;overflow-y:auto;font-variant-numeric:tabular-nums;font-size:.95rem}
 .log .n{color:var(--mut)}
 .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:40}
 .ov[hidden]{display:none}
 #pbtns button{font-size:2.4rem;line-height:1;width:1.5em;height:1.5em;padding:0;background:var(--lt);color:var(--bp);font-family:"Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",sans-serif}
-.who{min-width:0}
-.bar .cap{font-size:1rem;min-height:1.4em;line-height:1.2}
-.cap .p.b{text-shadow:0 0 2px rgba(255,255,255,.55)}
 .sq.pre::before{background:rgba(80,140,230,.65)}
+.log .msg{grid-column:1/-1;margin:0}
