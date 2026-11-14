@@ -53,7 +53,10 @@
   }
   // Acompanha a sala atual (entrar, sair, revanche)
   setInterval(() => {
-    const id = typeof room !== "undefined" && room ? room.id : null;
+    const r = typeof room !== "undefined" ? room : null;
+    const off = !!(r && r.chat_off);            // sala criada com "Sem chat": esconde a caixa
+    box.classList.toggle("hidden", off);
+    const id = r && !off ? r.id : null;
     if (id === cur) return;
     cur = id; if (ch) { client.removeChannel(ch); ch = null; }
     if (id) start(id);

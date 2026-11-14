@@ -27,6 +27,7 @@
       <label>Ritmo<select id="tr"><option value="180+0" selected>3+0</option><option value="60+0">1+0 (relâmpago)</option><option value="180+2">3+2</option></select></label>
       <label>Rodadas<select id="tq"><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option></select></label>
       <label><input type="checkbox" id="tpl" checked style="width:auto;display:inline;margin-right:6px">Eu também jogo</label>
+      <label><input type="checkbox" id="tpub" style="width:auto;display:inline;margin-right:6px">Torneio público (aparece na lista da tela inicial)</label>
       <div class="row"><button id="tc" class="primary" style="flex:1">Criar torneio</button></div></div><div>
       <h3>Entrar em um torneio</h3>
       <label>Código<input id="jc" maxlength="6" style="text-transform:uppercase"></label>
@@ -38,8 +39,10 @@
       <div class="row"><button id="rb" style="flex:1">Recuperar</button></div></div></div>
       <p id="tm" class="msg">${esc(msg || "")}</p><div class="row"><button id="tx">Voltar</button></div></div>`;
     const go = async (fn, nid) => { try { await ensureUser(); const { data, error } = await fn(); if (error) throw error; store("xm-nick", $(nid).value.trim()); openT(data); } catch (e) { say("tm", e.message); } };
-    $("tc").onclick = () => go(() => { const [s, i] = $("tr").value.split("+").map(Number);
-      return client.rpc("t_create", { p_code: code(), p_name: $("tn").value, p_host: $("th").value, p_pin: $("tp").value, p_seconds: s, p_inc: i, p_rounds: Number($("tq").value), p_play: $("tpl").checked }); }, "th");
+    $("tc").onclick = () => go(async () => { const [s, i] = $("tr").value.split("+").map(Number), pub = $("tpub").checked;
+      const r = await client.rpc("t_create", { p_code: code(), p_name: $("tn").value, p_host: $("th").value, p_pin: $("tp").value, p_seconds: s, p_inc: i, p_rounds: Number($("tq").value), p_play: $("tpl").checked });
+      if (!r.error && pub) await client.rpc("t_set_public", { p_tid: r.data.id, p_public: true });   // torneio público: aparece na lista
+      return r; }, "th");
     $("jb").onclick = () => go(() => client.rpc("t_join", { p_code: $("jc").value, p_name: $("jn").value }), "jn");
     $("rb").onclick = () => go(() => client.rpc("t_reclaim", { p_code: $("rc").value, p_pin: $("rp").value }), "jn");
     $("tx").onclick = () => { tv.classList.add("hidden"); $("setup").classList.remove("hidden"); };
@@ -55,6 +58,7 @@
       .on(...f("tournament_games", "tournament_id=eq." + t.id)).subscribe(s => { if (s === "SUBSCRIBED") load(); });
     load();
   }
+  window.xmOpenT = openT;   // usado pelo lobby.js para abrir um torneio público
   function gone() { store("xm-torneio", null); forms("Esse torneio foi encerrado ou apagado."); }
 
   async function load() {
@@ -128,7 +132,7 @@
     const cur = T.games.filter(g => g.round === t.current_round);
     const canStart = host && (t.status === "lobby" || t.status === "between") && t.current_round < t.rounds && act >= 2;
     let h = `<div class="card"><div class="row" style="justify-content:space-between;align-items:center;margin:0"><h2>🏆 ${esc(t.name)}</h2><span class="pill">${STAT[t.status]}</span></div>
-      <p class="msg">Código <b style="letter-spacing:2px;color:var(--ink)">${t.code}</b> · ritmo ${t.seconds / 60}+${t.increment} · rodada ${t.current_round}/${t.rounds} · ${act} jogador(es)</p>
+      <p class="msg">Código <b style="letter-spacing:2px;color:var(--ink)">${t.code}</b> · ritmo ${t.seconds / 60}+${t.increment} · rodada ${t.current_round}/${t.rounds} · ${act} jogador(es)${t.is_public ? " · público" : ""}</p>
       <h3>Classificação</h3><table><tr><th>#</th><th>Jogador</th><th>Pts</th><th title="Buchholz">Desempate</th><th>V</th>${host ? "<th></th>" : ""}</tr>`;
     R.forEach((s, i) => { h += `<tr class="${s.p.active ? "" : "dim"}"><td>${i + 1}</td><td>${esc(s.p.name)}${s.p.id === (mine || {}).id ? " (você)" : ""}${s.p.active ? "" : " · saiu"}</td><td><b>${fmt(s.pts)}</b></td><td>${fmt(s.buch)}</td><td>${s.wins}</td>${host ? `<td>${s.p.active ? `<button data-rm="${s.p.id}">remover</button>` : ""}</td>` : ""}</tr>`; });
     h += "</table>";

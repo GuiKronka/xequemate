@@ -54,6 +54,8 @@ const DY = {};
 } catch (e) {} })();
 const glyph = (color, t) => `<span class="p ${color}" style="top:${DY[t] || 0}em">${G[t]}\uFE0E</span>`;
 
+// Único ponto de login do site. Hoje é anônimo; um futuro sistema de contas entra AQUI
+// (o id do usuário continua o mesmo ao virar conta, então o resto do código não muda).
 async function ensureUser() {
   if (user) return user;
   const { data, error } = await client.auth.getSession(); if (error) throw error;
@@ -69,7 +71,15 @@ async function createRoom() {
         const [secs, inc] = $("timeControl").value.split("+").map(Number);
     const { data, error } = await client.rpc("create_chess_room", { p_code: code(), p_name: name, p_seconds: secs, p_inc: inc || 0 });
     if (error) throw error;
-    await enterRoom(data);
+    // Opções da sala: pública (aparece na lista) e/ou sem chat
+    const pub = $("roomPublic").checked, noChat = $("roomNoChat").checked;
+    let row = data, optErr = null;
+    if (pub || noChat) {
+      const o = await client.rpc("set_room_options", { p_room_id: data.id, p_public: pub, p_chat_off: noChat });
+      if (o.error) optErr = o.error; else row = o.data;
+    }
+    await enterRoom(row);
+    if (optErr) say("gameMessage", "A sala foi criada, mas não consegui aplicar as opções: " + optErr.message);
   } catch (e) { say("setupMessage", e.message); }
 }
 async function joinRoom() {

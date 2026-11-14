@@ -49,6 +49,8 @@
               <option value="2700+0">45 minutos</option>
               <option value="3600+0">60 minutos</option>
             </select>
+            <label><input type="checkbox" id="roomPublic" style="width:auto;display:inline;margin-right:6px">Sala pública (aparece na lista da tela inicial)</label>
+            <label style="margin-top:6px"><input type="checkbox" id="roomNoChat" style="width:auto;display:inline;margin-right:6px">Sem chat</label>
             <div class="row"><button id="createBtn" class="primary" style="flex:1">Criar sala</button></div>
             <div class="or">ou entre com um código</div>
             <div class="row"><input id="roomCode" maxlength="6" placeholder="Código da sala" autocomplete="off"><button id="joinBtn">Entrar</button></div>
@@ -115,5 +117,6 @@
   <script src="chat.js"></script>
   <script src="home.js"></script>
   <script src="tabuleiro.js"></script>
+  <script src="lobby.js"></script>
 </body>
 </html>
