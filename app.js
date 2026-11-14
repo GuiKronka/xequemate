@@ -248,7 +248,7 @@ function tryPre() {
   doMove({ from: m.from, to: m.to, promotion: ok.promotion ? "q" : undefined });
 }
 const clearPre = () => { pres = []; sel = null; targets = []; render(); };
-$("board").addEventListener("contextmenu", e => { e.preventDefault(); clearPre(); });
+$("board").addEventListener("contextmenu", e => { e.preventDefault(); if (pres.length) clearPre(); });
 $("preClr").onclick = clearPre;
 const paintPre = () => { $("preBtn").textContent = preOn ? "⚡ Pré-lance: ligado" : "⚡ Pré-lance: desligado"; };
 $("preBtn").onclick = () => { preOn = !preOn; store("xm-pre", preOn ? "1" : "0"); if (!preOn) clearPre(); paintPre(); };
