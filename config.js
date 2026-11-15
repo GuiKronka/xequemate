@@ -29,8 +29,32 @@
     return r;
   }
 
-  // Som e pré-lance: só existem na partida online (index.html)
+  // ---- Preferências salvas (se o localStorage falhar, vale o padrão) ----
+  const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  // Som: só existe na partida online (index.html)
   if (el("muteBtn")) row("Som", el("muteBtn"));
+
+  // Tema do tabuleiro: vira body[data-tema="..."] e o style.css troca as cores das casas
+  const TEMAS = { verde: "Verde-água (padrão)", madeira: "Madeira", azul: "Azul", cinza: "Cinza" };
+  const selTema = document.createElement("select");
+  selTema.setAttribute("aria-label", "Tema do tabuleiro");
+  for (const k in TEMAS) { const o = document.createElement("option"); o.value = k; o.textContent = TEMAS[k]; selTema.appendChild(o); }
+  const setTema = t => { if (!TEMAS[t]) t = "verde"; document.body.dataset.tema = t; selTema.value = t; };
+  setTema(get("xm-tema"));
+  selTema.onchange = () => { setTema(selTema.value); set("xm-tema", selTema.value); };
+  row("Tema do tabuleiro", selTema);
+
+  // Coordenadas (a–h, 1–8): vira body[data-coord="0"] quando ocultas
+  const chkCoord = document.createElement("input");
+  chkCoord.type = "checkbox"; chkCoord.setAttribute("aria-label", "Mostrar coordenadas");
+  const setCoord = on => { document.body.dataset.coord = on ? "1" : "0"; chkCoord.checked = on; };
+  setCoord(get("xm-coord") !== "0");
+  chkCoord.onchange = () => { setCoord(chkCoord.checked); set("xm-coord", chkCoord.checked ? "1" : "0"); };
+  row("Mostrar coordenadas", chkCoord);
+
+  // Pré-lance: só existe na partida online (index.html)
   if (el("preBtn")) row("Pré-lance", el("preBtn"));
 
   // ---- Abrir e fechar ----

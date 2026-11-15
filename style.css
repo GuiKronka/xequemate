@@ -130,6 +130,15 @@ body:has(#game.hidden) #cfgBtn{display:none}
 .cfg-r{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
 .cfg-r>span{font-weight:600;color:var(--mut);font-size:.9rem}
 .cfg-r select{width:auto;padding:7px 10px}
+.cfg-r input[type=checkbox]{width:1.3em;height:1.3em;padding:0;accent-color:var(--acc);cursor:pointer}
+/* Temas do tabuleiro (o padrão "verde" usa as cores do :root) e coordenadas */
+body[data-tema="madeira"]{--lt:#f0d9b5;--dk:#b58863}
+body[data-tema="azul"]{--lt:#dee3e6;--dk:#8ca2ad}
+body[data-tema="cinza"]{--lt:#dcdcdc;--dk:#8a8a8a}
+body[data-coord="0"] .co{display:none}
+/* Aba "Torneio" destacada quando a tela do torneio (#tv) está aberta */
+body:has(#tv:not(.hidden)) .sitenav a.on:not(:hover){color:var(--mut);background:none}
+body:has(#tv:not(.hidden)) #navT{color:var(--ink);background:rgba(255,255,255,.07)}
 /* Arrastar peças e setas/círculos (tabuleiro.js) */
 .board{touch-action:none;user-select:none;-webkit-user-select:none}
 .shapes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
