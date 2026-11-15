@@ -147,6 +147,7 @@ function paintPlayers() {
   [["Top", top], ["Bot", bot]].forEach(([k, c]) => {
     $("name" + k).textContent = nm(c) + (c === myColor ? " (você)" : room.black_id ? (oppOnline ? " ● online" : " ○ offline") : "");
     $("clock" + k).textContent = timeText(remaining[c]);
+    $("clock" + k).classList.toggle("low", !isOver() && !!room.black_id && remaining[c] <= 10000);   // últimos 10 s: vermelho (o piscar é do CSS)
     $("pl" + k).classList.toggle("turn", !isOver() && !!room.black_id && chess.turn() === c);
   });
 }
