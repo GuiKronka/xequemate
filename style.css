@@ -110,7 +110,7 @@ body[data-tam="g"]{--ui:1.2;--bmax:900px;--bf:1}
   /* barra do jogador sempre em uma linha (altura fixa = conta da altura confiável); nome longo ganha "…" */
   .game .who{flex-wrap:nowrap;flex:1;margin-right:10px}
   .game .who>b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:3em}
-  .game .who .cap{flex-wrap:nowrap;overflow:hidden;flex-shrink:2}
+  .game .who .cap{flex-wrap:nowrap;overflow:hidden;flex-shrink:2;padding-right:.5em}   /* o padding compensa a margem negativa da última peça (senão ela é cortada) */
 }
 aside>.status{font-size:1.1em}
 .bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin:8px 0;background:var(--panel);border:2px solid transparent;border-radius:10px}
