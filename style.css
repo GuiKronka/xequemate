@@ -79,9 +79,9 @@ button:disabled{opacity:.4;cursor:default;transform:none}
 .game{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;align-items:flex-start;padding:18px 12px 28px}
 /* Tamanho da interface (config.js põe body[data-tam="p|m|g"]).
    --ui = escala das fontes · --bmax = teto do tabuleiro · --bf = fração do espaço livre (só no computador) */
-body{--ui:1;--bmax:520px;--bf:.88}
-body[data-tam="p"]{--ui:.9;--bmax:400px;--bf:.72}
-body[data-tam="g"]{--ui:1.1;--bmax:760px;--bf:1}
+body{--ui:1.1;--bmax:620px;--bf:.9}
+body[data-tam="p"]{--ui:1;--bmax:460px;--bf:.76}
+body[data-tam="g"]{--ui:1.2;--bmax:900px;--bf:1}
 .game{font-size:calc(16px*var(--ui))}
 .game .msg{font-size:.9em}
 /* --bw (lado do tabuleiro) = menor entre o teto, a largura livre e a altura livre.
@@ -90,22 +90,29 @@ body[data-tam="g"]{--ui:1.1;--bmax:760px;--bf:1}
 .stage{--f:1;--side:24px;--avh:9999px;--bw:max(200px,min(var(--bmax),var(--f)*min(100vw - var(--side),var(--avh))));width:var(--bw)}
 .who{display:flex;flex-wrap:wrap;align-items:center;column-gap:10px;min-width:0}
 @media(min-width:901px){
-  .stage{--f:var(--bf);--side:330px;--avh:calc(100vh - 141px - 136px*var(--ui))}
+  /* No computador a tela da partida é "apertada" para sobrar altura para o tabuleiro:
+     cabeçalho mais baixo (só enquanto a partida está na tela), barras e margens menores. */
+  body:has(.game:not(.hidden)) .topin{padding-block:3px}
+  body:has(.game:not(.hidden)) .sitenav a,body:has(.game:not(.hidden)) .sitenav button{padding-block:5px}
+  body:has(.game:not(.hidden)) .pill{padding-block:4px}
+  .game{padding:6px 12px}
+  .game .bar{padding:3px 10px;margin:4px 0}
+  .game .status{min-height:1.5em}
+  /* Altura livre = janela − partes fixas (cabeçalho, margens, bordas) − partes que crescem com a fonte (as 2 barras)
+     − --ex (o que mais houver embaixo do tabuleiro). Se mudar a altura das barras ou do cabeçalho, refaça esta conta. */
+  .stage{--f:var(--bf);--side:330px;--ex:0px;--avh:calc(100vh - 106px - 48px*var(--ui) - var(--ex))}
+  .stage:has(>.status){--ex:calc(24px*var(--ui))}                     /* linha de status embaixo do tabuleiro (ia.html, puzzles.html) */
+  .stage:has(>.eb:not(.hidden)){--ex:calc(24px*var(--ui) + 32px)}     /* + barra de avaliação (análise do ia.html) */
   .game:has(#chat:not(.hidden)) .stage{--side:566px}
-  .game>aside{max-height:calc(100vh - 110px);overflow-y:auto}
+  .game>aside{max-height:calc(100vh - 54px);overflow-y:auto}
+  .game>aside:not(#chat){max-width:calc(340px*var(--ui))}   /* painel acompanha a fonte: os botões continuam cabendo 2 por linha */
   .game .log{min-height:3em}
   /* barra do jogador sempre em uma linha (altura fixa = conta da altura confiável); nome longo ganha "…" */
   .game .who{flex-wrap:nowrap;flex:1;margin-right:10px}
   .game .who>b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:3em}
   .game .who .cap{flex-wrap:nowrap;overflow:hidden;flex-shrink:2}
 }
-@media(min-width:901px) and (max-height:820px){   /* janela baixa (Chromebook): aperta as margens */
-  .game{padding:8px 12px}
-  .game .bar{margin:5px 0}
-  .game .status{min-height:1.5em}
-  .stage{--avh:calc(100vh - 99px - 128px*var(--ui))}
-  .game>aside{max-height:calc(100vh - 76px)}
-}
+aside>.status{font-size:1.1em}
 .bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin:8px 0;background:var(--panel);border:2px solid transparent;border-radius:10px}
 .bar.turn{border-color:var(--acc)}
 .clock{background:var(--bg);padding:4px 10px;border-radius:6px;font-weight:700;font-variant-numeric:tabular-nums}
