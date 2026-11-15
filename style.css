@@ -121,6 +121,15 @@ aside{flex:1 1 260px;max-width:340px;min-width:240px;background:var(--panel);bor
 #pbtns button{font-size:2.4rem;line-height:1;width:1.5em;height:1.5em;padding:0;background:var(--lt);color:var(--bp);font-family:"Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",sans-serif}
 .sq.pre::before{background:rgba(80,140,230,.65)}
 .log .msg{grid-column:1/-1;margin:0}
+/* Configurações (config.js) */
+#cfgBtn{padding:.3em .55em;font-size:1.05rem;line-height:1}
+body:has(#game.hidden) #cfgBtn{display:none}
+@media(max-width:720px){#cfgBtn{margin-left:auto}#cfgBtn+.pill{margin-left:0}}
+#cfg .card{width:min(360px,92vw)}
+.cfg-t{display:block;font-size:1.1rem;margin-bottom:4px}
+.cfg-r{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
+.cfg-r>span{font-weight:600;color:var(--mut);font-size:.9rem}
+.cfg-r select{width:auto;padding:7px 10px}
 /* Arrastar peças e setas/círculos (tabuleiro.js) */
 .board{touch-action:none;user-select:none;-webkit-user-select:none}
 .shapes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
