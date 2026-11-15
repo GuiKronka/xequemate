@@ -38,13 +38,22 @@
 
   // Tema do tabuleiro: vira body[data-tema="..."] e o style.css troca as cores das casas
   const TEMAS = { verde: "Verde-água (padrão)", madeira: "Madeira", azul: "Azul", cinza: "Cinza" };
-  const selTema = document.createElement("select");
-  selTema.setAttribute("aria-label", "Tema do tabuleiro");
-  for (const k in TEMAS) { const o = document.createElement("option"); o.value = k; o.textContent = TEMAS[k]; selTema.appendChild(o); }
-  const setTema = t => { if (!TEMAS[t]) t = "verde"; document.body.dataset.tema = t; selTema.value = t; };
+  // Um quadradinho colorido por tema (as cores de cada um ficam no style.css, em .sw[data-t="..."])
+  const boxTema = document.createElement("div");
+  boxTema.className = "cfg-sw";
+  for (const k in TEMAS) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "sw"; b.dataset.t = k; b.title = TEMAS[k]; b.setAttribute("aria-label", "Tema " + TEMAS[k]);
+    boxTema.appendChild(b);
+  }
+  const setTema = t => {
+    if (!TEMAS[t]) t = "verde";
+    document.body.dataset.tema = t;
+    boxTema.querySelectorAll(".sw").forEach(b => b.setAttribute("aria-pressed", b.dataset.t === t ? "true" : "false"));
+  };
   setTema(get("xm-tema"));
-  selTema.onchange = () => { setTema(selTema.value); set("xm-tema", selTema.value); };
-  row("Tema do tabuleiro", selTema);
+  boxTema.onclick = e => { const b = e.target.closest(".sw"); if (b) { setTema(b.dataset.t); set("xm-tema", b.dataset.t); } };
+  row("Tema do tabuleiro", boxTema);
 
   // Coordenadas (a–h, 1–8): vira body[data-coord="0"] quando ocultas
   const chkCoord = document.createElement("input");
@@ -64,4 +73,6 @@
   el("cfgX").onclick = close;
   ov.addEventListener("click", e => { if (e.target === ov) close(); });   // clique fora do cartão
   document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  // Com o painel aberto, as teclas (ex.: setas) não chegam aos atalhos da revisão de lances
+  ov.addEventListener("keydown", e => { if (e.key !== "Escape") e.stopPropagation(); });
 })();

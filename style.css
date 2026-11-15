@@ -130,6 +130,13 @@ body:has(#game.hidden) #cfgBtn{display:none}
 .cfg-r{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
 .cfg-r>span{font-weight:600;color:var(--mut);font-size:.9rem}
 .cfg-r select{width:auto;padding:7px 10px}
+.cfg-sw{display:flex;gap:8px}
+.sw{width:38px;height:38px;padding:0;border:2px solid transparent;border-radius:8px}
+.sw[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.sw[data-t="verde"]{background:linear-gradient(135deg,#cdd8cf 50%,#5a8179 50%)}
+.sw[data-t="madeira"]{background:linear-gradient(135deg,#f0d9b5 50%,#b58863 50%)}
+.sw[data-t="azul"]{background:linear-gradient(135deg,#dee3e6 50%,#8ca2ad 50%)}
+.sw[data-t="cinza"]{background:linear-gradient(135deg,#dcdcdc 50%,#8a8a8a 50%)}
 .cfg-r input[type=checkbox]{width:1.3em;height:1.3em;padding:0;accent-color:var(--acc);cursor:pointer}
 /* Temas do tabuleiro (o padrão "verde" usa as cores do :root) e coordenadas */
 body[data-tema="madeira"]{--lt:#f0d9b5;--dk:#b58863}
