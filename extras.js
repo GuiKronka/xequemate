@@ -10,9 +10,9 @@
 
   const css = document.createElement("style");
   css.textContent = ".sq .pc{width:90%;height:90%;position:relative;z-index:1;pointer-events:none;user-select:none}" +
-    ".cap{display:flex;align-items:center;flex-wrap:wrap;min-height:1.6em;font-size:1rem}" +
+    ".cap{display:flex;align-items:center;flex-wrap:wrap;min-height:1.6em;font-size:1em}" +
     ".cap .pc{width:1.35em;height:1.35em;margin-right:-.5em;pointer-events:none}" +
-    ".cap .adv{margin-left:.9em;color:var(--mut);font-weight:700;font-size:.85rem}" +
+    ".cap .adv{margin-left:.9em;color:var(--mut);font-weight:700;font-size:.85em}" +
     ".nav{display:flex;gap:6px}.nav button{flex:1}" +
     ".log .cur{background:var(--acc);color:#1c2a31;border-radius:4px;padding:0 4px}.log span[data-p]{cursor:pointer}" +
     "#pbtns button .pc{width:80%;height:80%}";

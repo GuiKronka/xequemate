@@ -63,6 +63,16 @@
   chkCoord.onchange = () => { setCoord(chkCoord.checked); set("xm-coord", chkCoord.checked ? "1" : "0"); };
   row("Mostrar coordenadas", chkCoord);
 
+  // Tamanho da interface: vira body[data-tam="p|m|g"]; o style.css calcula o tabuleiro e as fontes
+  const TAMS = { p: "Pequeno", m: "Médio (padrão)", g: "Grande" };
+  const selTam = document.createElement("select");
+  selTam.setAttribute("aria-label", "Tamanho da interface");
+  for (const k in TAMS) { const o = document.createElement("option"); o.value = k; o.textContent = TAMS[k]; selTam.appendChild(o); }
+  const setTam = t => { if (!TAMS[t]) t = "m"; document.body.dataset.tam = t; selTam.value = t; };
+  setTam(get("xm-tam"));
+  selTam.onchange = () => { setTam(selTam.value); set("xm-tam", selTam.value); };
+  row("Tamanho da interface", selTam);
+
   // Pré-lance: só existe na partida online (index.html)
   if (el("preBtn")) row("Pré-lance", el("preBtn"));
 

@@ -6,11 +6,11 @@
   const css = document.createElement("style");
   css.textContent = "#chat{order:-1;flex:1 1 220px;max-width:300px;min-width:200px;height:min(620px,80vh);padding:12px;gap:8px}" +
     ".ch-h{display:flex;align-items:center;justify-content:space-between}.ch-h button{padding:.2em .6em}" +
-    ".ch-l{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;font-size:.92rem}" +
+    ".ch-l{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;font-size:.92em}" +
     ".ch-m{background:var(--bg);padding:6px 9px;border-radius:8px;max-width:92%;word-break:break-word}" +
-    ".ch-m b{display:block;font-size:.72rem;color:var(--mut)}" +
+    ".ch-m b{display:block;font-size:.78em;color:var(--mut)}" +
     ".ch-m.me{align-self:flex-end;background:rgba(230,191,85,.22)}" +
-    ".ch-m.sys{align-self:center;background:none;color:var(--mut);font-size:.8rem;font-style:italic}" +
+    ".ch-m.sys{align-self:center;background:none;color:var(--mut);font-size:.87em;font-style:italic}" +
     ".ch-r{display:flex;gap:6px}.ch-r input{flex:1;min-width:0}" +
     "#chat.min{height:auto}#chat.min .ch-l,#chat.min .ch-r{display:none}" +
     "@media(max-width:900px){#chat{order:3;max-width:none;flex-basis:100%;height:300px}#chat.min{height:auto}}";
